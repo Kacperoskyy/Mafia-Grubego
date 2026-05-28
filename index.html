@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mafia - Role i Karty</title>
+    <style>
+        :root {
+            --bg-color: #0f0f12;
+            --card-bg: #1a1a24;
+            --text-color: #e2e8f0;
+            --text-muted: #94a3b8;
+            --mafia-color: #ef4444;
+            --mafia-glow: rgba(239, 68, 68, 0.2);
+            --cywil-color: #22c55e;
+            --cywil-glow: rgba(34, 197, 94, 0.2);
+            --neutral-color: #eab308;
+            --neutral-glow: rgba(234, 179, 8, 0.2);
+            --border-radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 0;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #2d2d3d;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(255,255,255,0.1);
+        }
+
+        header p {
+            color: var(--text-muted);
+            margin-top: 10px;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            margin: 40px 0 20px 0;
+            padding-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            border-radius: 2px;
+        }
+
+        /* Kolorowanie sekcji */
+        .mafia-section { color: var(--mafia-color); }
+        .mafia-section::after { background-color: var(--mafia-color); }
+        
+        .cywil-section { color: var(--cywil-color); }
+        .cywil-section::after { background-color: var(--cywil-color); }
+
+        .neutral-section { color: var(--neutral-color); }
+        .neutral-section::after { background-color: var(--neutral-color); }
+
+        /* Grid dla kart */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid #2d2d3d;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Specyficzne podświetlenia dla frakcji */
+        .card.mafia-card:hover { box-shadow: 0 8px 20px var(--mafia-glow); border-color: var(--mafia-color); }
+        .card.cywil-card:hover { box-shadow: 0 8px 20px var(--cywil-glow); border-color: var(--cywil-color); }
+        .card.neutral-card:hover { box-shadow: 0 8px 20px var(--neutral-glow); border-color: var(--neutral-color); }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #2d2d3d;
+        }
+
+        .card-body {
+            font-size: 0.95rem;
+            color: #cbd5e1;
+            flex-grow: 1;
+        }
+
+        .card-body ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .card-body li {
+            margin-bottom: 6px;
+            position: relative;
+            padding-left: 15px;
+        }
+
+        .card-body li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--text-muted);
+        }
+
+        .limit-badge {
+            display: inline-block;
+            background-color: #2d2d3d;
+            color: #f8fafc;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 15px;
+            text-transform: uppercase;
+            align-self: flex-start;
+        }
+
+        .mafia-card .limit-badge { border: 1px solid rgba(239, 68, 68, 0.4); }
+        .cywil-card .limit-badge { border: 1px solid rgba(34, 197, 94, 0.4); }
+        .neutral-card .limit-badge { border: 1px solid rgba(234, 179, 8, 0.4); }
+
+        @media (max-width: 600px) {
+            header h1 { font-size: 2rem; }
+            .grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>🎭 Mafia - Role i Karty</h1>
+            <p>Kompendium wiedzy dla graczy i prowadzącego</p>
+        </header>
+
+        <!-- ================= ROLE GRY ================= -->
+        <hr style="border-color: #2d2d3d; margin: 40px 0;">
+        <h2 style="text-align: center; text-transform: uppercase; letter-spacing: 2px;">🎭 Role w grze</h2>
+
+        <!-- MAFIA -->
+        <h3 class="section-title mafia-section">🔴 Role Mafii (Złe)</h3>
+        <div class="grid">
+            <div class="card mafia-card">
+                <div class="card-header">🔪 Mafia</div>
+                <div class="card-body">
+                    <ul>
+                        <li>W nocy wybiera, kogo zabija.</li>
+                        <li>Zna innych mafiozów i działa każdej nocy.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card mafia-card">
+                <div class="card-header">👑 Boss mafii</div>
+                <div class="card-body">
+                    <ul>
+                        <li>Wygląda jak cywil dla detektywa.</li>
+                        <li>W nocy wybiera ofiarę razem z mafią.</li>
+                        <li>Detektyw oraz karty sprawdzenia zawsze dostają fałszywy wynik („nie mafia”).</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card mafia-card">
+                <div class="card-header">⛓️ Egzekutor</div>
+                <div class="card-body">
+                    <ul>
+                        <li>Pomocnik mafii.</li>
+                        <li>Przez pierwsze 2 noce detektyw widzi go jako „nie mafia”.</li>
+                        <li><strong>Raz w grze może:</strong> zablokować użycie umiejętności lub karty jednej osoby tej nocy.</li>
+                        <li>Świetnie kontruje lekarza, snajpera i mocne karty.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- CYWILE -->
+        <h3 class="section-title cywil-section">🟢 Role Cywili (Dobrych)</h3>
+        <div class="grid">
+            <div class="card cywil-card">
+                <div class="card-header">🕵️ Detektyw</div>
+                <div class="card-body">
+                    <ul>
+                        <li>Każdej nocy sprawdza jedną osobę.</li>
+                        <li>Otrzymuje informację: mafia / nie mafia.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card cywil-card">
+                <div class="card-header">💉 Lekarz</div>
+                <div class="card-body">
+                    <ul>
+                        <li>Każdej nocy może uratować jedną osobę przed śmiercią.</li>
+                        <li>Obowiązuje zakaz leczenia tej samej osoby dwa razy z rzędu.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card cywil-card">
+                <div class="card-header">🎯 Snajper</div>
+                <div class="card-body">
+                    <ul>
+                        <li>Raz w grze może zabić wybraną osobę (w dzień lub w nocy).</li>
+                        <li>Jeśli nie trafi w mafię – sam ginie.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card cywil-card">
+                <div class="card-header">👀 Obserwator</div>
+                <div class="card-body">
+                    <ul>
+                        <li>Co noc sprawdza, czy wybrana osoba coś robiła (ale nie wie co dokładnie).</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card cywil-card">
+                <div class="card-header">🙂 Cywil</div>
+                <div class="card-body">
+                    <ul>
+                        <li>Brak specjalnej mocy.</li>
+                        <li>Dyskutuje, analizuje i głosuje.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- NEUTRALNE -->
+        <h3 class="section-title neutral-section">🟡 Role Neutralne</h3>
+        <div class="grid">
+            <div class="card neutral-card">
+                <div class="card-header">🃏 Joker</div>
+                <div class="card-body">
+                    <ul>
+                        <li>Jego celem jest zostać wyrzuconym na głosowaniu miejskim.</li>
+                        <li>Jeśli to się uda – samodzielnie wygrywa grę.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card neutral-card">
+                <div class="card-header">🔪 Maniak</div>
+                <div class="card-body">
+                    <ul>
+                        <li>Gra przeciwko wszystkim – mafii i obywatelom.</li>
+                        <li>Nikt nie wie, że jest w grze (ani mafia, ani cywile).</li>
+                        <li>Może zabijać tylko w nocy lub powstrzymać się od zabójstwa.</li>
+                        <li>Może otrzymywać karty zarówno mafii, jak i obywateli.</li>
+                        <li><strong>Cel:</strong> Zostać ostatnią żyjącą osobą.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card neutral-card">
+                <div class="card-header">🎯 Łowca</div>
+                <div class="card-body">
+                    <ul>
+                        <li>Jego celem jest wyrzucenie osoby, którą prowadzący wskaże na samym początku gry.</li>
+                        <li>Jeśli mu się uda, wygrywa niezależnie od wszystkiego.</li>
+                        <li>Jeśli wskazany cel zginie z rąk mafii, łowca staje się zwykłym cywilem.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card neutral-card">
+                <div class="card-header">🪞 Sobowtór</div>
+                <div class="card-body">
+                    <ul>
+                        <li>Po otrzymaniu roli pisze do prowadzącego osobę, która jest jego sobowtórem.</li>
+                        <li>Jeśli ta osoba zginie – sobowtór przejmuje jej rolę oraz jej warunki zwycięstwa!</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ================= KARTY / BENEFITY ================= -->
+        <hr style="border-color: #2d2d3d; margin: 60px 0;">
+        <h2 style="text-align: center; text-transform: uppercase; letter-spacing: 2px;">🎴 Karty i Benefity</h2>
+
+        <!-- KARTY DOBRE -->
+        <h3 class="section-title cywil-section">🟢 Dla Cywili / Dobrych</h3>
+        <div class="grid">
+            <div class="card cywil-card">
+                <div class="card-header">🛡️ Tarcza</div>
+                <div class="card-body">Tej nocy możesz ochronić siebie lub wybraną osobę przed zabiciem przez mafię. Jeśli zostanie wybrana na ofiarę – przeżyje. Nie ujawniaj, kogo chronisz.</div>
+                <div class="limit-badge">Limit: 1 raz na grę</div>
+            </div>
+            <div class="card cywil-card">
+                <div class="card-header">👁️ Wzrok detektywa</div>
+                <div class="card-body">Możesz sprawdzić jedną osobę tej nocy – prowadzący odpisze prywatnie: mafia / nie mafia.</div>
+                <div class="limit-badge">Limit: 1 raz na grę</div>
+            </div>
+            <div class="card cywil-card">
+                <div class="card-header">🧑‍🤝‍🧑 Ochrona obywateli</div>
+                <div class="card-body">Tego dnia, jeśli na głosowaniu zostanie wybrany obywatel – nie odpada z gry.</div>
+                <div class="limit-badge">Limit: 1 raz na grę</div>
+            </div>
+            <div class="card cywil-card">
+                <div class="card-header">🔥 Ostatnia szansa</div>
+                <div class="card-body">Jeśli masz zostać wyeliminowany, możesz ujawnić swoją rolę i przeżyć tę rundę. Prowadzący publicznie potwierdzi, czy mówisz prawdę.</div>
+                <div class="limit-badge">Limit: 1 raz na grę</div>
+            </div>
+            <div class="card cywil-card">
+                <div class="card-header">📋 Wywiad</div>
+                <div class="card-body">Wskaż 3 osoby. Prowadzący odpisze, ile z nich jest w mafii (nie mówi jednak, które to dokładnie). Daje to świetną wskazówkę do dyskusji.</div>
+                <div class="limit-badge">Limit: 1 raz na grę</div>
+            </div>
+            <div class="card cywil-card">
+                <div class="card-header">📜 Testament</div>
+                <div class="card-body">Po śmierci możesz zostawić krótką wiadomość dla miasta. Prowadzący odczyta ją z rana wszystkim graczom.</div>
+                <div class="limit-badge">Limit: 1 raz na grę</div>
+            </div>
+        </div>
+
+        <!-- KARTY ZŁE -->
+        <h3 class="section-title mafia-section">🔴 Dla Mafii / Złych</h3>
+        <div class="grid">
+            <div class="card mafia-card">
+                <div class="card-header">🔪 Podwójne zabójstwo</div>
+                <div class="card-body">Tej nocy mafia może zabić dwie osoby zamiast jednej. Użyj w dobrym momencie, żeby wprowadzić chaos w mieście.</div>
+                <div class="limit-badge">Limit: 1 raz na grę</div>
+            </div>
+            <div class="card mafia-card">
+                <div class="card-header">🕶️ Ukrycie akcji</div>
+                <div class="card-body">W tej nocy wykonujesz akcję, ale obserwator nie widzi wyniku – nawet jeśli sprawdzał Wasz cel.</div>
+                <div class="limit-badge">Limit: 1 raz na grę</div>
+            </div>
+            <div class="card mafia-card">
+                <div class="card-header">🎭 Podstawiony trop</div>
+                <div class="card-body">Raz w grze możecie sprawić, że jedna wybrana osoba wyjdzie w sprawdzeniach jako „podejrzana”, mimo że jest całkowicie niewinna.</div>
+                <div class="limit-badge">Limit: 1 raz na grę</div>
+            </div>
+        </div>
+
+        <!-- KARTY NEUTRALNE -->
+        <h3 class="section-title neutral-section">⚖️ Karty Neutralne (Dla Mafii i Cywili)</h3>
+        <div class="grid">
+            <div class="card neutral-card">
+                <div class="card-header">🛑 Ochrona przed wyrzuceniem</div>
+                <div class="card-body">Tego dnia nie możesz zostać wyrzucony na ogólnym głosowaniu miasta.</div>
+                <div class="limit-badge">Limit: 1 raz na grę</div>
+            </div>
+            <div class="card neutral-card">
+                <div class="card-header">🗳️ Podwójny głos</div>
+                <div class="card-body">Oddajesz dwa ważne głosy na jedną osobę w tej turze głosowania.</div>
+                <div class="limit-badge">Limit: 1 raz na grę</div>
+            </div>
+            <div class="card neutral-card">
+                <div class="card-header">👻 Ukrycie</div>
+                <div class="card-body">Tego dnia i nocy jesteś całkowicie niewidzialny – nikt nie może ci nic zrobić, ale ty możesz normalnie korzystać ze swoich umiejętności.</div>
+                <div class="limit-badge">Limit: 1 raz na grę</div>
+            </div>
+            <div class="card neutral-card">
+                <div class="card-header">📢 Wymuszenie głosu</div>
+                <div class="card-body">Wybierasz osobę – musi ona zagłosować na wskazany przez ciebie cel i nie może nikomu ujawnić, że została do tego zmuszona.</div>
+                <div class="limit-badge">Limit: 1 raz na grę</div>
+            </div>
+            <div class="card neutral-card">
+                <div class="card-header">🃏 Kradzież karty</div>
+                <div class="card-body">Wybierasz osobę i bezpowrotnie przejmujesz jej aktywną kartę (jeśli jakąś posiada).</div>
+                <div class="limit-badge">Limit: 1 raz na grę</div>
+            </div>
+            <div class="card neutral-card">
+                <div class="card-header">🔄 Zamiana głosu</div>
+                <div class="card-body">Możesz zmienić swój własny głos lub potajemnie zmienić głos innej osoby podczas trwającego głosowania.</div>
+                <div class="limit-badge">Limit: 1 raz na grę</div>
+            </div>
+            <div class="card neutral-card">
+                <div class="card-header">✝️ Wskrzeszenie</div>
+                <div class="card-body">Wybierasz dowolną osobę, która ma wrócić do żywych. Wskrzeszona osoba wraca do gry z dokładnie tą samą rolą, którą miała przed śmiercią.</div>
+                <div class="limit-badge">Limit: 1 raz na grę</div>
+            </div>
+        </div>
+
+        <footer style="text-align: center; padding: 40px 0; color: var(--text-muted); font-size: 0.85rem;">
+            Projekt strony przygotowany na rozgrywki Mafia. Niech wygra lepszy!
+        </footer>
+    </div>
+
+</body>
+</html>
